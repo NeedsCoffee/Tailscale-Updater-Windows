@@ -18,6 +18,11 @@ The script can be provided a number of switches which alter its behaviour.
 
 \-TaskMode [switch, optional] \<true>\\\<false> (default)> - reserved
 
+## Installation
+
+Download the .ps1 files, as admin use powershell, change to folder where you downloaded the files, run .\Install-Updater.ps1
+Scheduled task will be created and run the script on a daily basis at midday from the location where you ran the installer.
+
 ## Usage
 
 Search for current stable release. Install if newer than an installed version
@@ -51,5 +56,5 @@ When run from the PowerShell manually you can use -Verbose to monitor the progre
 - Self-auto-update
 - Auto-repair if node falls out of tailnet (store tskey in a secure keystore)
 - Take a tskey as an interactive run switch to setup the node if needed
-- Determine alternative means of detecting new releases (API doesn't seem to do it yet)
+- Determine alternative means of detecting new releases (API doesn't seem to do it - must be something!)
 - Notification service support
