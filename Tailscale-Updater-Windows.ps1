@@ -24,7 +24,7 @@ function Get-TailscaleLatestReleaseInfo {
     [string]$release_uri = $null
 
     Try {
-        [Microsoft.PowerShell.Commands.WebResponseObject]$response = Invoke-WebRequest -Uri:$uri -Method:Get #-SkipCertificateCheck:$true    
+        [Microsoft.PowerShell.Commands.WebResponseObject]$response = Invoke-WebRequest -Uri $uri -Method Get -UseBasicParsing   
         Write-Verbose -Message "Content retrieved: $($response.RawContentLength) bytes"
         [System.Object]$release_link = $response.Links | Where-Object -Property href -Match -Value "\$release_suffix`$"
         Write-Verbose -Message "Filtered link: $($release_link.OuterHTML)"
