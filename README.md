@@ -2,6 +2,7 @@
 
 This is a little project to develop an updater & release collector for Tailscale on Windows.
 
+The script requires PowerShell 5 or 7 and has been tested in both.
 To use as an updater the script should be launched as an administrator from a scheduled task.
 
 The script can be provided a number of switches which alter its behaviour.
