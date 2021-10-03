@@ -24,7 +24,7 @@ function Get-TailscaleLatestReleaseInfo {
     [string]$release_uri = $null
 
     Try {
-        [Microsoft.PowerShell.Commands.WebResponseObject]$response = Invoke-WebRequest -Uri:$uri -Method:Get -SkipCertificateCheck:$true    
+        [Microsoft.PowerShell.Commands.WebResponseObject]$response = Invoke-WebRequest -Uri:$uri -Method:Get #-SkipCertificateCheck:$true    
         Write-Verbose -Message "Content retrieved: $($response.RawContentLength) bytes"
         [System.Object]$release_link = $response.Links | Where-Object -Property href -Match -Value "\$release_suffix`$"
         Write-Verbose -Message "Filtered link: $($release_link.OuterHTML)"
@@ -53,11 +53,12 @@ function Get-TailscaleInstalledVersion {
     [CmdletBinding()] param()
 
     [string]$tailscale_app = 'tailscale-ipn.exe'
+    [string]$tailscale_daemon = 'tailscaled'
     [version]$tailscale_version = $null
     [System.ComponentModel.Component]$tailscale_service = Get-Service -Name Tailscale
     if($tailscale_service){
         Write-Verbose "Tailscale status: $($tailscale_service.Status)"
-        [string]$tailscale_parent = (Get-Item -LiteralPath ($tailscale_service.BinaryPathName -Replace('"'))).Directory
+        [string]$tailscale_parent = (Get-Item -LiteralPath (Get-Process -Name $tailscale_daemon | Select-Object -ExpandProperty Path -First 1)).Directory
         Write-Verbose "Tailscale directory: $tailscale_parent"
         $tailscale_app_path = Join-Path -Path $tailscale_parent -ChildPath $tailscale_app
         if(Test-Path -LiteralPath $tailscale_app_path){
