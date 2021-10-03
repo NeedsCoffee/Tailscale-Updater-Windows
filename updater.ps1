@@ -3,7 +3,8 @@ param (
     [Parameter()] [ValidateSet('stable','unstable')] [string]$Track = 'stable',
     [Parameter()] [switch]$DownloadOnly = $false,
     [Parameter()] [string]$SiloPath = (Join-Path -Path (Get-Location) -ChildPath 'tailscale_silo'),
-    [Parameter()] [switch]$Force = $false
+    [Parameter()] [switch]$Force = $false,
+    [Parameter()] [switch]$TaskMode = $false
 )
 
 function Get-TailscaleLatestReleaseInfo {

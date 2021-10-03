@@ -7,13 +7,15 @@ To use as an updater the script should be launched as an administrator from a sc
 The script can be provided a number of switches which alter its behaviour.
 
 ## Available switches
-\-Track [string, optional] \<stable (default)>\\\<unstable>
+\-Track [string, optional] \<stable (default)>\\\<unstable> - choose release to get (stable/unstable)
 
-\-DownloadOnly [switch, optional] \<true>\\\<false (default)>
+\-DownloadOnly [switch, optional] \<true>\\\<false (default)> - if specified just download then exit
 
-\-SiloPath [string, optional] \<local or full path to release storage folder>
+\-SiloPath [string, optional] \<local or full path to release storage folder> - where to store release files
 
 \-Verbose [switch, optional] \<true>\\\<false> (default)>
+
+\-TaskMode [switch, optional] \<true>\\\<false> (default)> - reserved
 
 ## Usage
 
@@ -41,3 +43,12 @@ When run from the PowerShell manually you can use -Verbose to monitor the progre
 ```plaintext
 .\Tailscale-Updater-Windows.ps1 -Track stable -DownloadOnly -Verbose
 ```
+
+## To-Do
+- Auto-elevate and install as a scheduled task when run interactively
+- Logging to a file or windows application log
+- Self-auto-update
+- Auto-repair if node falls out of tailnet (store tskey in a secure keystore)
+- Take a tskey as an interactive run switch to setup the node if needed
+- Determine alternative means of detecting new releases (API doesn't seem to do it yet)
+- Notification service support
