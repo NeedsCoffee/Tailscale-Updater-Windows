@@ -16,16 +16,18 @@ If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 }
 
 if(-not (Test-Path -LiteralPath $path)){
-    Write-Host "Creating directory $path"
+    Write-Host "Creating directory: $path"
     $target = New-Item -Path $path -ItemType Directory
 }
 
 Try {
     $target = Get-Item -LiteralPath $path
-    Write-Host "Installing into $target"
+    Write-Host "Installation target: $target"
     Get-ChildItem "Tailscale-Updater-Windows.ps1" | Copy-Item -Destination $target -Force
     $action = New-ScheduledTaskAction -Execute 'powershell.exe' -WorkingDirectory $target.FullName -Argument ('-NoProfile -NoLogo -WindowStyle Hidden -ExecutionPolicy Bypass -File Tailscale-Updater-Windows.ps1'+$(if($unstable){' -Track unstable'}))
     $trigger = New-ScheduledTaskTrigger -Daily -At 12:00
+    # remove an existing task to allow for repeat usage/upgrades
+    Get-ScheduledTask | Where-Object TaskName -like "Tailscale Updater" | ForEach-Object {Unregister-ScheduledTask -TaskName $_.TaskName -Confirm:$false}
     Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Tailscale Updater" -Description "Daily Tailscale update" -User "NT AUTHORITY\SYSTEM" | Out-Null
     Write-Host "Successfully installed scheduled task"
 } Catch {
