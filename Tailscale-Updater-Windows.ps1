@@ -104,7 +104,7 @@ function Invoke-TailscaleInstall {
     )
     Write-Verbose "Testing for admin rights"
     If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
-    [Security.Principal.WindowsBuiltInRole] “Administrator”)) {
+    [Security.Principal.WindowsBuiltInRole] "Administrator")) {
         Write-Error "Not running as Admin"
         break
     } else {
