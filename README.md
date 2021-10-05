@@ -20,8 +20,12 @@ The script can be provided a number of switches which alter its behaviour.
 
 ## Installation
 
-Download the .ps1 files, as admin use powershell, change to folder where you downloaded the files, run .\Install-Updater.ps1
-Scheduled task will be created and run the script on a daily basis at midday from the location where you ran the installer.
+Download the .ps1 files
+Run powershell as admin
+Change to folder where you downloaded the files
+Run .\Install-Updater.ps1
+Tailscale-Updater-Windows.ps1 will be copied to C:\ProgramData\Tailscale-updater\
+Then a scheduled task will be created torun the script on a daily basis at midday, storing files in a silo sub-folder.
 
 ## Usage
 
@@ -51,6 +55,7 @@ When run from the PowerShell manually you can use -Verbose to monitor the progre
 ```
 
 ## To-Do
+- Automatic release pruning - 3 previous versions perhaps
 - Auto-elevate and install as a scheduled task when run interactively
 - Logging to a file or windows application log
 - Self-auto-update
