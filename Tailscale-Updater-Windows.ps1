@@ -24,6 +24,10 @@ function Get-TailscaleLatestReleaseInfo {
     [string]$release_uri = $null
 
     Try {
+        if(([System.Net.ServicePointManager]::SecurityProtocol -eq "SystemDefault") -and ([enum]::GetNames([System.Net.SecurityProtocolType]) -contains "Tls12")) {
+            Write-Verbose "Connection security: TLS 1.2"
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
+        }
         [Microsoft.PowerShell.Commands.WebResponseObject]$response = Invoke-WebRequest -Uri $uri -Method Get -UseBasicParsing   
         Write-Verbose -Message "Content retrieved: $($response.RawContentLength) bytes"
         [System.Object]$release_link = $response.Links | Where-Object -Property href -Match -Value "\$release_suffix`$"
