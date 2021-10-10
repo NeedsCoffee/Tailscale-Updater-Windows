@@ -25,7 +25,7 @@ function Get-TailscaleLatestReleaseInfo {
 
     Try {
         if(([System.Net.ServicePointManager]::SecurityProtocol -eq "SystemDefault") -and ([enum]::GetNames([System.Net.SecurityProtocolType]) -contains "Tls12")) {
-            Write-Verbose "Connection security: TLS 1.2"
+            Write-Verbose -Message "Setting connection security: TLS 1.2"
             [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
         }
         [Microsoft.PowerShell.Commands.WebResponseObject]$response = Invoke-WebRequest -Uri $uri -Method Get -UseBasicParsing   
@@ -54,12 +54,14 @@ function Get-TailscaleLatestReleaseInfo {
 
 function Get-TailscaleInstalledVersion {
     # find Tailscale on local device using service information and parse the version in use
+    # this has the nice result that if the service isn't running, or isn't found then the version
+    # returned is 0.0.0.0 which will in turn cause tailscale to install or re-install
     [CmdletBinding()] param()
 
     [string]$tailscale_app = 'tailscale-ipn.exe'
     [string]$tailscale_daemon = 'tailscaled'
     [version]$tailscale_version = $null
-    [System.ComponentModel.Component]$tailscale_service = Get-Service -Name Tailscale
+    [System.ComponentModel.Component]$tailscale_service = Get-Service -Name Tailscale -WarningAction:SilentlyContinue -ErrorAction:SilentlyContinue
     if($tailscale_service){
         Write-Verbose "Tailscale status: $($tailscale_service.Status)"
         [string]$tailscale_parent = (Get-Item -LiteralPath (Get-Process -Name $tailscale_daemon | Select-Object -ExpandProperty Path -First 1)).Directory
@@ -116,7 +118,7 @@ function Invoke-TailscaleInstall {
     }
 
     if(Test-Path -Path $Release){
-        Write-Host "Starting install: '$Release' /S"
+        Write-Host "Starting installation: '$Release' /S"
         Try {
             Start-Process -FilePath $Release -ArgumentList '/S' -NoNewWindow -Wait
         } Catch {
@@ -142,5 +144,5 @@ if($force -or $available_release.version -gt $installed_release){
         Write-Error "Release not downloaded."
     }
 } else {
-    Write-Host "No newer release."
+    Write-Host "No new release found."
 }
