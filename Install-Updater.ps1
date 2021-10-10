@@ -1,3 +1,4 @@
+# installer script v0.1.4
 [CmdletBinding()]
 param (
     [Parameter()]
@@ -8,11 +9,11 @@ param (
     $path = "$env:ALLUSERSPROFILE\Tailscale-updater"
 )
 
-If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Host "Not running as Admin. Nothing done."
-    break
-} else {
-    Write-Host "Admin rights available"
+If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+{
+  # Relaunch as an elevated process:
+  Start-Process powershell.exe "-File",('"{0}"' -f $MyInvocation.MyCommand.Path) -Verb RunAs
+  exit
 }
 
 if(-not (Test-Path -LiteralPath $path)){
