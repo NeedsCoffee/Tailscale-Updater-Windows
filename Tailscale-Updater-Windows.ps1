@@ -1,3 +1,4 @@
+# tailscale-updater script v0.1.4
 [CmdletBinding()]
 param (
     [Parameter()] [ValidateSet('stable','unstable')] [string]$Track = 'stable',
