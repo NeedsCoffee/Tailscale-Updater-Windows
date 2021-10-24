@@ -20,12 +20,17 @@ The script can be provided a number of switches which alter its behaviour.
 
 ## Installation
 
-Download the .ps1 files
+Download the .ps1 files from the latest release
 Run powershell as admin
 Change to folder where you downloaded the files
 Run .\Install-Updater.ps1
 Tailscale-Updater-Windows.ps1 will be copied to C:\ProgramData\Tailscale-updater\
-Then a scheduled task will be created torun the script on a daily basis at midday, storing files in a silo sub-folder.
+Then a scheduled task will be created to run the script on a daily basis at midday, storing files in a silo sub-folder.
+
+You can also run the following PowerShell one-liner to do the whole thing:
+```
+Invoke-WebRequest -uri https://github.com/NeedsCoffee/Tailscale-Updater-Windows/releases/download/v0.2.0/Install-Updater.ps1 -OutFile Install-Updater.ps1; Invoke-WebRequest -uri https://github.com/NeedsCoffee/Tailscale-Updater-Windows/releases/download/v0.2.0/Tailscale-Updater-Windows.ps1 -OutFile Tailscale-Updater-Windows.ps1; Start-Process 'powershell.exe' -ArgumentList "-ExecutionPolicy Bypass -Command `"& {Set-Location $((Get-Location).Path);.\Install-Updater.ps1}`"" -Wait -Verb RunAs; Remove-Item Install-Updater.ps1,Tailscale-Updater-Windows.ps1;
+```
 
 ## Usage
 
@@ -49,14 +54,14 @@ Search for current unstable release. Download to .\releases then exit without in
 .\Tailscale-Updater-Windows.ps1 -SiloPath .\releases -Track unstable -DownloadOnly
 ```
 
-When run from the PowerShell manually you can use -Verbose to monitor the progress
+When run from PowerShell manually you can use -Verbose to monitor the progress
 ```plaintext
 .\Tailscale-Updater-Windows.ps1 -Track stable -DownloadOnly -Verbose
 ```
 
 ## To-Do
-- Automatic release pruning - 3 previous versions perhaps
-- Auto-elevate and install as a scheduled task when run interactively
+- ~~Automatic release pruning - 3 previous versions perhaps~~ done
+- ~~Auto-elevate and install as a scheduled task when run interactively~~ done with installer script
 - Logging to a file or windows application log
 - Self-auto-update
 - Auto-repair if node falls out of tailnet (store tskey in a secure keystore)
