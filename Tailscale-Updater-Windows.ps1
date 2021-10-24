@@ -1,4 +1,4 @@
-# tailscale-updater script v0.1.4
+# tailscale-updater script v0.20
 [CmdletBinding()]
 param (
     [Parameter()] [ValidateSet('stable','unstable')] [string]$Track = 'stable',
@@ -7,6 +7,20 @@ param (
     [Parameter()] [switch]$Force = $false,
     [Parameter()] [switch]$TaskMode = $false
 )
+function Invoke-SiloMaintenance {
+    [CmdletBinding()]
+    param ([string]$Path = $SiloPath)
+    if(-Not (Test-Path -LiteralPath $SiloPath)){
+        Write-Host "Silo Maintenance: SiloPath not found [$Path]"
+    } else {
+        [array]$silos = Get-ChildItem -LiteralPath $Path -Directory
+        foreach($silo in $silos){
+            Write-Verbose "Silo Maintenace: $($silo.FullName)"
+            [array]$files = Get-ChildItem -LiteralPath $silo -File -Filter '*.exe' | Sort-Object -Property BaseName -Descending
+            $files | Select-Object -Skip 2 | Remove-Item -Force -Verbose
+        }
+    }
+}
 
 function Get-TailscaleLatestReleaseInfo {
     # scrape Tailscale release pages and parse latest version info
@@ -129,21 +143,30 @@ function Invoke-TailscaleInstall {
         Write-Error "Can't find installer"
     }
 }
-
-[PSCustomObject]$available_release = Get-TailscaleLatestReleaseInfo -Track $Track
-[version]$installed_release = Get-TailscaleInstalledVersion
-
-if($force -or $available_release.version -gt $installed_release){
-    Write-Host "Tailscale release: $($available_release.version)"
-    $file = Get-TailscaleRelease -Release $available_release -Destination $SiloPath
-    if(Test-Path $file){
-        Write-Host "Release downloaded: $($file.FullName)"
-        if(-not $DownloadOnly){
-            Invoke-TailscaleInstall -Release $file
+function Invoke-TailscaleUpdate {
+    [CmdletBinding()]
+    param (
+        [Parameter()] [PSCustomObject]$available,
+        [Parameter()] [version]$installed
+    )
+    if($force -or $available.version -gt $installed){
+        Write-Host "Tailscale release: $($available.version)"
+        $file = Get-TailscaleRelease -Release $available -Destination $script:SiloPath
+        if(Test-Path $file){
+            Write-Host "Release downloaded: $($file.FullName)"
+            if(-not $script:DownloadOnly){
+                Invoke-TailscaleInstall -Release $file
+            }
+        } else {
+            Write-Error "Release not downloaded."
         }
     } else {
-        Write-Error "Release not downloaded."
-    }
-} else {
-    Write-Host "No new release found."
+        Write-Host "No new release found."
+    }    
 }
+#Start
+[PSCustomObject]$available_release = Get-TailscaleLatestReleaseInfo -Track $Track
+[version]$installed_release = Get-TailscaleInstalledVersion
+Invoke-TailscaleUpdate -available $available_release -installed $installed_release
+Invoke-SiloMaintenance -Path $SiloPath
+#End
