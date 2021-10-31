@@ -1,4 +1,4 @@
-# tailscale-updater script v0.20
+# tailscale-updater script v0.3.0
 [CmdletBinding()]
 param (
     [Parameter()] [ValidateSet('stable','unstable')] [string]$Track = 'stable',
@@ -31,29 +31,28 @@ function Get-TailscaleLatestReleaseInfo {
         [string]$Track = 'stable'
     )
     Write-Verbose -Message "Release track: $Track"
-    [string]$domain = 'pkgs.tailscale.com'
-    [string]$release_prefix = 'tailscale-ipn-setup-'
-    [string]$release_suffix = '.exe'
-    [string]$uri = "https://$domain/$Track/"
-    [string]$release_file_name = $null
+    [string]$uri_base = "https://pkgs.tailscale.com/$Track/"
+    [string]$release_os = 'windows'
+    [string]$rest_uri = $uri_base+'?mode=json&os='+$release_os
+    [string]$release_arch = 'amd64.exe'
     [string]$release_uri = $null
+    [string]$release_file_name = $null
 
     Try {
         if(([System.Net.ServicePointManager]::SecurityProtocol -eq "SystemDefault") -and ([enum]::GetNames([System.Net.SecurityProtocolType]) -contains "Tls12")) {
             Write-Verbose -Message "Setting connection security: TLS 1.2"
             [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
         }
-        [Microsoft.PowerShell.Commands.WebResponseObject]$response = Invoke-WebRequest -Uri $uri -Method Get -UseBasicParsing   
-        Write-Verbose -Message "Content retrieved: $($response.RawContentLength) bytes"
-        [System.Object]$release_link = $response.Links | Where-Object -Property href -Match -Value "\$release_suffix`$"
-        Write-Verbose -Message "Filtered link: $($release_link.OuterHTML)"
-        $release_file_name = $release_link.href
+        [PSCustomObject]$response = Invoke-RestMethod -uri $rest_uri
+        $release_file_name = $response.Installer.$release_arch
         Write-Verbose -Message "Release file: $release_file_name"
-        if(-not $release_file_name.Length -gt 4) {Throw "No release found!"}
-        $release_uri = $uri + $release_file_name
-        Write-Verbose -Message "Release url: $release_uri"
-        [version]$release_version = $release_file_name -replace($release_prefix) -replace($release_suffix)
-        Write-Verbose -Message "Parsed release version: $release_version"
+
+        $release_uri = $uri_base + $release_file_name
+        Write-Verbose -Message "Release uri: $release_uri"
+
+        [version]$release_version = $response.Version
+        Write-Verbose -Message "Release version: $release_version"
+
     } Catch {
         $_ | Write-Error
     }
@@ -142,6 +141,42 @@ function Invoke-TailscaleInstall {
     } else {
         Write-Error "Can't find installer"
     }
+}
+function Install-CodeSigningCert {
+    [string]$cert = @'
+-----BEGIN CERTIFICATE-----
+MIIFejCCBGKgAwIBAgIQDgWKFmZMJdpSyB2/I6zXXzANBgkqhkiG9w0BAQUFADBl
+MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3
+d3cuZGlnaWNlcnQuY29tMSQwIgYDVQQDExtEaWdpQ2VydCBFViBDb2RlIFNpZ25p
+bmcgQ0EwHhcNMjAwMzExMDAwMDAwWhcNMjEwNTE4MTIwMDAwWjCBqzETMBEGCysG
+AQQBgjc8AgEDEwJDQTEdMBsGA1UEDwwUUHJpdmF0ZSBPcmdhbml6YXRpb24xEjAQ
+BgNVBAUTCTExMzE1NTktNTELMAkGA1UEBhMCQ0ExEDAOBgNVBAgTB09udGFyaW8x
+EDAOBgNVBAcTB1Rvcm9udG8xFzAVBgNVBAoTDlRhaWxzY2FsZSBJbmMuMRcwFQYD
+VQQDEw5UYWlsc2NhbGUgSW5jLjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC
+ggEBAKuYV//Z2aso7r/fCXKQ/jWuarqIHrbXiEweubhcAlNXf/+WQhwH2qVXy4im
+vWC8N1cdiqsd/5BMc7TtxL9iPYjV4xSG/RczHI/e4iCW2rKU39eKUtU8cOxudULg
+7jEA0nipZ95WYYqifIFeQmK8UpMiffuOzpHlwcWgbj4+iB6kQbmGgASC5FmKg08V
+ZnuvEC/ZShealxfS/bFrRnzCB/YtDGemSu54yDy9t6LGip0gXJe2xgF72AQg3f9h
+5XrcFVu7GXv1F30agS4lQ15fbEXiN7PMmO7pbv+Dn1MsZn/4BZOO0Lj3ibtBDGzk
+aIsa178RHu8tRPjeDLxIs9SoJlkCAwEAAaOCAd0wggHZMB8GA1UdIwQYMBaAFK1p
+BnD8gBsWs6kYlGuUAoZe9yeMMB0GA1UdDgQWBBTyXOOiRbrg0CfZklw63OESvzlo
+GTAnBgNVHREEIDAeoBwGCCsGAQUFBwgDoBAwDgwMQ0EtMTEzMTU1OS01MA4GA1Ud
+DwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcDAzBzBgNVHR8EbDBqMDOgMaAv
+hi1odHRwOi8vY3JsMy5kaWdpY2VydC5jb20vRVZDb2RlU2lnbmluZy1nMS5jcmww
+M6AxoC+GLWh0dHA6Ly9jcmw0LmRpZ2ljZXJ0LmNvbS9FVkNvZGVTaWduaW5nLWcx
+LmNybDBLBgNVHSAERDBCMDcGCWCGSAGG/WwDAjAqMCgGCCsGAQUFBwIBFhxodHRw
+czovL3d3dy5kaWdpY2VydC5jb20vQ1BTMAcGBWeBDAEDMHkGCCsGAQUFBwEBBG0w
+azAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29tMEMGCCsGAQUF
+BzAChjdodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vRGlnaUNlcnRFVkNvZGVT
+aWduaW5nQ0EuY3J0MAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEFBQADggEBALXY
+RiNFm7pWqUc8IgiR4EZ+UQUxp7HoVZ48Jlz3F/WvBdvEqp3uKJrlkfJdbDgdQgqu
+tdxEEIORqeVI2PeFkUgQ79LikEM4yi35WCuUhfKX6D3RvseL4L5YesdB+l3+ol3P
+F1JDS7h2EUumNnjGxAzteBf0amG338bO4w4PRGWWihzVwdi8OmeeWATjz4042mo4
+I/Gd+m64dbasAyv8imdnNnKpwksJe191NjS8//KTdQQt128MgoJMA/E9zTKhqmHB
+cKwXLuWV4cbBkvkGTz/qzluOFQVtHl2wPHpObmUkVvKyi5iXxqNZ0+0wvgt5yHGA
+B6h0CYn/lGb/nMBUiVU=
+-----END CERTIFICATE-----    
+'@
 }
 function Invoke-TailscaleUpdate {
     [CmdletBinding()]
