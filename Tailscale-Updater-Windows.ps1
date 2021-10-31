@@ -166,6 +166,7 @@ function Install-CodeSigningCert {
     BcKwXLuWV4cbBkvkGTz/qzluOFQVtHl2wPHpObmUkVvKyi5iXxqNZ0+0wvgt5yHGAB6h0CYn/lGb/nMBUiVU='
     $tailscaleCertificateDER = [System.Convert]::FromBase64String($tailscaleCertificateBase64)
     $tailscaleCertificateObj = [System.Security.Cryptography.X509Certificates.X509Certificate2]($tailscaleCertificateDER)
+    
     # copy certificate to a localmachine trusted store here
 }
 function Invoke-TailscaleUpdate {
