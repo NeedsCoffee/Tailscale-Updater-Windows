@@ -11,13 +11,13 @@ function Invoke-SiloMaintenance {
     # make sure all silos contain no more than 2 releases
     [CmdletBinding()]
     param ([string]$Path = $SiloPath)
-    if(-Not (Test-Path -LiteralPath $SiloPath)){
+    if(-Not (Test-Path -LiteralPath $Path)){
         Write-Host "Silo Maintenance: SiloPath not found [$Path]"
     } else {
         [array]$silos = Get-ChildItem -LiteralPath $Path -Directory
         foreach($silo in $silos){
             Write-Verbose "Silo Maintenace: $($silo.FullName)"
-            [array]$files = Get-ChildItem -LiteralPath $silo -File -Filter '*.exe' | Sort-Object -Property BaseName -Descending
+            [array]$files = Get-ChildItem -LiteralPath $silo.FullName -File -Filter '*.exe' | Sort-Object -Property BaseName -Descending
             $files | Select-Object -Skip 2 | Remove-Item -Force -Verbose
         }
     }
