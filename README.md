@@ -29,7 +29,7 @@ Then a scheduled task will be created to run the script on a daily basis at midd
 
 You can also run the following PowerShell one-liner to do the whole thing:
 ```
-Invoke-WebRequest -uri https://github.com/NeedsCoffee/Tailscale-Updater-Windows/releases/download/v0.2.0/Install-Updater.ps1 -OutFile Install-Updater.ps1; Invoke-WebRequest -uri https://github.com/NeedsCoffee/Tailscale-Updater-Windows/releases/download/v0.2.0/Tailscale-Updater-Windows.ps1 -OutFile Tailscale-Updater-Windows.ps1; Start-Process 'powershell.exe' -ArgumentList "-ExecutionPolicy Bypass -Command `"& {Set-Location $((Get-Location).Path);.\Install-Updater.ps1}`"" -Wait -Verb RunAs; Remove-Item Install-Updater.ps1,Tailscale-Updater-Windows.ps1;
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -uri https://github.com/NeedsCoffee/Tailscale-Updater-Windows/releases/download/v0.3.0/Install-Updater.ps1 -OutFile Install-Updater.ps1; Invoke-WebRequest -uri https://github.com/NeedsCoffee/Tailscale-Updater-Windows/releases/download/v0.3.0/Tailscale-Updater-Windows.ps1 -OutFile Tailscale-Updater-Windows.ps1; Start-Process 'powershell.exe' -ArgumentList "-ExecutionPolicy Bypass -Command `"& {Set-Location $((Get-Location).Path);.\Install-Updater.ps1}`"" -Wait -Verb RunAs; Remove-Item Install-Updater.ps1,Tailscale-Updater-Windows.ps1;
 ```
 
 ## Usage
