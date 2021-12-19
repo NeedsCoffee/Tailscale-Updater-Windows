@@ -2,6 +2,7 @@
 
 This is a little project to develop an updater & release collector for Tailscale on Windows.
 Tailscale is a multi-platform peer-to-peer mesh vpn using the Wireguard protocol. See https://tailscale.com
+Unfortunately one thing the Tailscale client doesn't do is provide the ability to update your clients automatically (that may be quite numerous) and that it what this little project is attempting to tackle, on Windows at least.
 
 The script requires PowerShell 5 or 7 and has been tested in both.
 To use as an updater the script should be launched as an administrator from a scheduled task.
