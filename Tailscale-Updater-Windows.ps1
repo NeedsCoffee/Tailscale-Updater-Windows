@@ -1,4 +1,4 @@
-# tailscale-updater script v0.4.0
+
 [CmdletBinding()]
 param (
     [Parameter()] [ValidateSet('stable','unstable')] [string]$Track = 'stable',
@@ -7,6 +7,10 @@ param (
     [Parameter()] [switch]$Force = $false,
     [Parameter()] [switch]$TaskMode = $false
 )
+############################
+# tailscale-updater script #
+$script:version = '0.5.0' ##
+############################
 function Invoke-SiloMaintenance {
     # make sure all silos contain no more than 2 releases
     [CmdletBinding()]
@@ -22,7 +26,6 @@ function Invoke-SiloMaintenance {
         }
     }
 }
-
 function Get-TailscaleLatestReleaseInfo {
     # query Tailscale release page for latest Windows version
     [CmdletBinding()]
@@ -446,7 +449,28 @@ function Invoke-TailscaleUpdate {
         Write-Host "No new release found."
     }    
 }
+function Invoke-TailscaleUpdaterUpdate {
+	[CmdletBinding()]
+    param ()
+	$repouri = "https://api.github.com/repos/needscoffee/tailscale-updater-windows"
+	[version]$runningversion = $script:version
+	Write-Verbose "Testing for new release of Tailscale updater"
+	Try {
+		$latest = Invoke-RestMethod "$repouri/releases/latest" -Headers @{Accept='application/vnd.github.v3+json'}
+		$latestversion = [version]($latest.tag_name -replace("v"))
+		Write-Verbose "This updater version = $runningversion"
+		Write-Verbose "Latest updater version = $latestversion"
+		if($latestversion -gt $runningversion){
+			Write-Host "New version detected. Updating to $latestversion"
+			$latest.assets | Where-Object -Property name -NotLike "Install-Updater.ps1" | ForEach-Object{Write-Verbose "Downloading $($_.url) to $($_.name)"; Invoke-RestMethod -Uri $_.url -Headers @{Accept='application/octet-stream'} -OutFile $_.name}
+		}
+	} Catch {
+		$_ | Write-Error
+		Write-Verbose "Unable to test for latest release of updater script"
+	}
+}
 #Start
+Invoke-TailscaleUpdaterUpdate
 [PSCustomObject]$available_release = Get-TailscaleLatestReleaseInfo -Track $Track
 [version]$running_release = Get-TailscaleServiceVersion
 Invoke-TailscaleUpdate -available $available_release -installed $running_release
