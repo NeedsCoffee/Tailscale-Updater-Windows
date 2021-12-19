@@ -1,4 +1,4 @@
-# tailscale-updater script v0.3.0
+# tailscale-updater script v0.4.0
 [CmdletBinding()]
 param (
     [Parameter()] [ValidateSet('stable','unstable')] [string]$Track = 'stable',
@@ -66,8 +66,23 @@ function Get-TailscaleLatestReleaseInfo {
     }
     return $release_object
 }
-
-function Get-TailscaleInstalledVersion {
+function Get-TailscaleInstallLocation {
+	[CmdletBinding()] param()
+	[string]$tailscale_reg_parent = 'HKLM:\software\Tailscale IPN\'
+	Try {
+		[string]$path = (Get-ItemProperty -Path $tailscale_reg_parent).'(default)'
+		if(Test-Path $path){
+			Write-Verbose "Tailscale is installed here: $path"
+		} else {
+			Throw "Tailscale registry entry found, but path does not exist"
+		}
+	} Catch {
+		$_ | Write-Error
+		Write-Error "Tailscale not installed properly"
+	}
+	return $path
+}
+function Get-TailscaleServiceVersion {
     # find Tailscale on local device using service information and parse the version in use
     # this has the nice result that if the service isn't running, or isn't found then the version
     # returned is 0.0.0.0 which will in turn cause tailscale to install or re-install
@@ -89,7 +104,7 @@ function Get-TailscaleInstalledVersion {
             Throw "Can't reach Tailscale app [$tailscale_app_path]"
         }
     } else {
-        Write-Verbose "Tailscale not installed"
+        Write-Verbose "Tailscale not installed/running"
     }
     return $tailscale_version
 }
@@ -118,7 +133,43 @@ function Get-TailscaleRelease {
     $downloadedFile = Get-Item -LiteralPath $outfile
     return $downloadedFile
 }
+function Invoke-TailscaleIPNLauncher {
+	# function to re-launch Tailscale-IPN.exe as a logged-on user if needed
+	[CmdletBinding()] param()
+	
+	[string[]]$loggedonuser = (Get-WMIObject -ClassName Win32_ComputerSystem).Username
+	if($loggedonuser.count -gt 0){
+		Write-Verbose "Interactive session detected"
+		$userpresent = $true
+	}
 
+	[string]$tailscaleipn = 'tailscale-ipn'
+	[string]$tailscaleparent = Get-TailscaleInstallLocation
+	if($tailscaleparent){
+		[string]$tailscaleipn_path = Join-Path -Path $tailscaleparent -ChildPath "$tailscaleipn.exe"
+		[ComponentModel.Component[]]$existingprocesses = Get-Process -Name $tailscaleipn -ErrorAction:SilentlyContinue -WarningAction:SilentlyContinue
+		if($existingprocesses){
+			Write-Verbose "Stopping existing Tailscale-IPN processes"
+			$existingprocesses | ForEach-Object{$_ | Stop-Process -Force}
+		}
+		Write-Verbose "Stopping Tailscale service"
+		Get-Service -Name Tailscale | Where-Object {$_.CanStop -and $_.Status -eq "Running"} | Stop-Service -Force -Confirm:$False | Out-Null
+		Start-Sleep -Seconds 2
+		Write-Verbose "Starting Tailscale service"
+		Start-Service -Name Tailscale -Confirm:$False | Out-Null
+		if($userpresent){
+			[boolean]$launchresult = Invoke-ProcessAsInteractiveUser -ApplicationPath $tailscaleipn_path
+			Switch ($launchresult){
+				$true {Write-Verbose "Tailscale-IPN launched as logged-on user"}
+				default {Write-Verbose "Tailscale-IPN NOT launched"}
+			}
+		} else {
+			Write-Verbose "No interactive session, not re-launching Tailscale-IPN"
+		}
+	} else {
+		Write-Verbose "Tailscale install not found. Launch attempt aborted"
+	}
+}
 function Invoke-TailscaleInstall {
     # install a given release
     [CmdletBinding()]
@@ -138,6 +189,8 @@ function Invoke-TailscaleInstall {
         Write-Host "Starting installation: '$Release' /S"
         Try {
             Start-Process -FilePath $Release -ArgumentList '/S' -NoNewWindow -Wait
+			Start-Sleep -Seconds 5
+			Invoke-TailscaleIPNLauncher
         } Catch {
             $_ | Write-Error
         }
@@ -360,7 +413,12 @@ namespace murrayju.ProcessExtensions {
     Add-Type -ReferencedAssemblies 'System', 'System.Runtime.InteropServices' -TypeDefinition $source -Language CSharp
     [boolean]$result = $false
     if(Test-Path $ApplicationPath){
-        [boolean]$result = [murrayju.ProcessExtensions.ProcessExtensions]::StartProcessAsCurrentUser($ApplicationPath)
+        Try {
+			[boolean]$result = [murrayju.ProcessExtensions.ProcessExtensions]::StartProcessAsCurrentUser($ApplicationPath)
+		} Catch {
+			$_ | Write-Host
+			Write-Error "Unable to launch [$ApplicationPath] as interactive user"
+		}
     } else {
         Write-Error "[$ApplicationPath] not found"
     }
@@ -390,7 +448,7 @@ function Invoke-TailscaleUpdate {
 }
 #Start
 [PSCustomObject]$available_release = Get-TailscaleLatestReleaseInfo -Track $Track
-[version]$installed_release = Get-TailscaleInstalledVersion
-Invoke-TailscaleUpdate -available $available_release -installed $installed_release
+[version]$running_release = Get-TailscaleServiceVersion
+Invoke-TailscaleUpdate -available $available_release -installed $running_release
 Invoke-SiloMaintenance -Path $SiloPath
 #End
