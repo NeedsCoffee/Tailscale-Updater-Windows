@@ -27,9 +27,9 @@ Run .\Install-Updater.ps1
 Tailscale-Updater-Windows.ps1 will be copied to C:\ProgramData\Tailscale-updater\
 Then a scheduled task will be created to run the script on a daily basis at midday, storing files in a silo sub-folder.
 
-You can also run the following PowerShell one-liner to do the whole thing:
+You can also run the following PowerShell one-liner (as admin preferably) to do the whole thing:
 ```
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine -Force -Confirm:$False; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -uri https://github.com/NeedsCoffee/Tailscale-Updater-Windows/releases/download/v0.3.0/Install-Updater.ps1 -OutFile Install-Updater.ps1; Invoke-WebRequest -uri https://github.com/NeedsCoffee/Tailscale-Updater-Windows/releases/download/v0.3.0/Tailscale-Updater-Windows.ps1 -OutFile Tailscale-Updater-Windows.ps1; Start-Process 'powershell.exe' -ArgumentList "-ExecutionPolicy Bypass -Command `"& {Set-Location $((Get-Location).Path);.\Install-Updater.ps1}`"" -Wait -Verb RunAs; Remove-Item Install-Updater.ps1,Tailscale-Updater-Windows.ps1;
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine -Force -Confirm:$False; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -uri https://github.com/NeedsCoffee/Tailscale-Updater-Windows/releases/download/v0.4.0/Install-Updater.ps1 -OutFile Install-Updater.ps1; Invoke-WebRequest -uri https://github.com/NeedsCoffee/Tailscale-Updater-Windows/releases/download/v0.4.0/Tailscale-Updater-Windows.ps1 -OutFile Tailscale-Updater-Windows.ps1; Start-Process 'powershell.exe' -ArgumentList "-ExecutionPolicy Bypass -Command `"& {Set-Location $((Get-Location).Path);.\Install-Updater.ps1}`"" -Wait -Verb RunAs; Remove-Item Install-Updater.ps1,Tailscale-Updater-Windows.ps1;
 ```
 
 ## Usage
