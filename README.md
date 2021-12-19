@@ -5,7 +5,9 @@ This is a little project to develop an updater & release collector for Tailscale
 The script requires PowerShell 5 or 7 and has been tested in both.
 To use as an updater the script should be launched as an administrator from a scheduled task.
 
-The script can be provided a number of switches which alter its behaviour.
+If you use the installer script to setup the updater the default is to run once per day and at machine startup. The updater will also check for a new version of itself and attempt to update itself as well.
+
+The script can be provided a number of switches which slightly alter its behaviour.
 
 ## Available switches
 \-Track [string, optional] \<stable (default)>\\\<unstable> - choose release to get (stable/unstable)
