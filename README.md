@@ -64,8 +64,8 @@ When run from PowerShell manually you can use -Verbose to monitor the progress
 - ~~Automatic release pruning - 3 previous versions perhaps~~ done
 - ~~Auto-elevate and install as a scheduled task when run interactively~~ done with installer script
 - Logging to a file or windows application log
-- ~~Self-auto-update
+- ~~Self-auto-update~~
 - Auto-repair if node falls out of tailnet (store tskey in a secure keystore)
 - Take a tskey as an interactive run switch to setup the node if needed
-- ~~Determine alternative means of detecting new releases (API doesn't seem to do it - must be something!)
+- ~~Determine alternative means of detecting new releases~~
 - Notification service support
