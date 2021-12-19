@@ -1,4 +1,4 @@
-# Tailscale-Updater-Windows
+# An Updater for Tailscale on Windows
 
 This is a little project to develop an updater & release collector for Tailscale on Windows.
 
