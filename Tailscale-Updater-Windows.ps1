@@ -145,30 +145,6 @@ function Invoke-TailscaleInstall {
         Write-Error "Can't find installer"
     }
 }
-function Install-CodeSigningCert {
-    # install the code signing certificate for the tailscale driver
-    # probably not necessary but it's done by others so...
-    [string]$tailscaleCertificateBase64 = `
-    'MIIFejCCBGKgAwIBAgIQDgWKFmZMJdpSyB2/I6zXXzANBgkqhkiG9w0BAQUFADBlMQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB
-    3d3cuZGlnaWNlcnQuY29tMSQwIgYDVQQDExtEaWdpQ2VydCBFViBDb2RlIFNpZ25pbmcgQ0EwHhcNMjAwMzExMDAwMDAwWhcNMjEwNTE4MTIwMDAwWjCBqzETMBEGCys
-    GAQQBgjc8AgEDEwJDQTEdMBsGA1UEDwwUUHJpdmF0ZSBPcmdhbml6YXRpb24xEjAQBgNVBAUTCTExMzE1NTktNTELMAkGA1UEBhMCQ0ExEDAOBgNVBAgTB09udGFyaW8
-    xEDAOBgNVBAcTB1Rvcm9udG8xFzAVBgNVBAoTDlRhaWxzY2FsZSBJbmMuMRcwFQYDVQQDEw5UYWlsc2NhbGUgSW5jLjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQo
-    CggEBAKuYV//Z2aso7r/fCXKQ/jWuarqIHrbXiEweubhcAlNXf/+WQhwH2qVXy4imvWC8N1cdiqsd/5BMc7TtxL9iPYjV4xSG/RczHI/e4iCW2rKU39eKUtU8cOxudUL
-    g7jEA0nipZ95WYYqifIFeQmK8UpMiffuOzpHlwcWgbj4+iB6kQbmGgASC5FmKg08VZnuvEC/ZShealxfS/bFrRnzCB/YtDGemSu54yDy9t6LGip0gXJe2xgF72AQg3f9
-    h5XrcFVu7GXv1F30agS4lQ15fbEXiN7PMmO7pbv+Dn1MsZn/4BZOO0Lj3ibtBDGzkaIsa178RHu8tRPjeDLxIs9SoJlkCAwEAAaOCAd0wggHZMB8GA1UdIwQYMBaAFK1
-    pBnD8gBsWs6kYlGuUAoZe9yeMMB0GA1UdDgQWBBTyXOOiRbrg0CfZklw63OESvzloGTAnBgNVHREEIDAeoBwGCCsGAQUFBwgDoBAwDgwMQ0EtMTEzMTU1OS01MA4GA1U
-    dDwEB/wQEAwIHgDATBgNVHSUEDDAKBggrBgEFBQcDAzBzBgNVHR8EbDBqMDOgMaAvhi1odHRwOi8vY3JsMy5kaWdpY2VydC5jb20vRVZDb2RlU2lnbmluZy1nMS5jcmw
-    wM6AxoC+GLWh0dHA6Ly9jcmw0LmRpZ2ljZXJ0LmNvbS9FVkNvZGVTaWduaW5nLWcxLmNybDBLBgNVHSAERDBCMDcGCWCGSAGG/WwDAjAqMCgGCCsGAQUFBwIBFhxodHR
-    wczovL3d3dy5kaWdpY2VydC5jb20vQ1BTMAcGBWeBDAEDMHkGCCsGAQUFBwEBBG0wazAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29tMEMGCCsGAQU
-    FBzAChjdodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vRGlnaUNlcnRFVkNvZGVTaWduaW5nQ0EuY3J0MAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEFBQADggEBALX
-    YRiNFm7pWqUc8IgiR4EZ+UQUxp7HoVZ48Jlz3F/WvBdvEqp3uKJrlkfJdbDgdQgqutdxEEIORqeVI2PeFkUgQ79LikEM4yi35WCuUhfKX6D3RvseL4L5YesdB+l3+ol3
-    PF1JDS7h2EUumNnjGxAzteBf0amG338bO4w4PRGWWihzVwdi8OmeeWATjz4042mo4I/Gd+m64dbasAyv8imdnNnKpwksJe191NjS8//KTdQQt128MgoJMA/E9zTKhqmH
-    BcKwXLuWV4cbBkvkGTz/qzluOFQVtHl2wPHpObmUkVvKyi5iXxqNZ0+0wvgt5yHGAB6h0CYn/lGb/nMBUiVU='
-    $tailscaleCertificateDER = [System.Convert]::FromBase64String($tailscaleCertificateBase64)
-    $tailscaleCertificateObj = [System.Security.Cryptography.X509Certificates.X509Certificate2]($tailscaleCertificateDER)
-    
-    # copy certificate to a localmachine trusted store here
-}
 function Invoke-TailscaleUpdate {
     # test for installed release vs latest downloaded and install if newer available
     [CmdletBinding()]
