@@ -35,8 +35,8 @@ Manually this would be:
 - Run powershell as admin
 - Change to folder where you downloaded the files
 - Run .\Install-Updater.ps1
--- Tailscale-Updater-Windows.ps1 will be copied to C:\ProgramData\Tailscale-updater\
--- Then a scheduled task will be created to run the script on a daily basis at midday, storing files in a silo sub-folder.
+- Tailscale-Updater-Windows.ps1 will be copied to C:\ProgramData\Tailscale-updater\
+- Then a scheduled task will be created to run the script on a daily basis at midday, storing files in a silo sub-folder.
 
 ## Usage
 
