@@ -20,17 +20,18 @@ The script can be provided a number of switches which alter its behaviour.
 
 ## Installation
 
-Download the .ps1 files from the latest release
-Run powershell as admin
-Change to folder where you downloaded the files
-Run .\Install-Updater.ps1
-Tailscale-Updater-Windows.ps1 will be copied to C:\ProgramData\Tailscale-updater\
-Then a scheduled task will be created to run the script on a daily basis at midday, storing files in a silo sub-folder.
+You can download and install the job using the following PowerShell one-liner (as admin preferably) to do the whole thing:
+```
+Set-ExecutionPolicy -ExecutionPolicy:RemoteSigned -Scope:LocalMachine -Force -Confirm:$False -ea:silentlycontinue; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; (irm 'https://api.github.com/repos/needscoffee/tailscale-updater-windows/releases/latest').assets|%{irm $_.url -h:@{Accept="application/octet-stream"} -o:$_.name}; Start-Process 'powershell.exe' -ArgumentList:"-ExecutionPolicy:Bypass -Command:`"& {Set-Location $((Get-Location).Path);.\Install-Updater.ps1}`"" -Wait -Verb:RunAs; Remove-Item Install-Updater.ps1,Tailscale-Updater-Windows.ps1;
+```
 
-You can also run the following PowerShell one-liner (as admin preferably) to do the whole thing:
-```
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine -Force -Confirm:$False; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -uri https://github.com/NeedsCoffee/Tailscale-Updater-Windows/releases/download/v0.4.0/Install-Updater.ps1 -OutFile Install-Updater.ps1; Invoke-WebRequest -uri https://github.com/NeedsCoffee/Tailscale-Updater-Windows/releases/download/v0.4.0/Tailscale-Updater-Windows.ps1 -OutFile Tailscale-Updater-Windows.ps1; Start-Process 'powershell.exe' -ArgumentList "-ExecutionPolicy Bypass -Command `"& {Set-Location $((Get-Location).Path);.\Install-Updater.ps1}`"" -Wait -Verb RunAs; Remove-Item Install-Updater.ps1,Tailscale-Updater-Windows.ps1;
-```
+Manually this would be:
+- Download the .ps1 files from the latest release
+- Run powershell as admin
+- Change to folder where you downloaded the files
+- Run .\Install-Updater.ps1
+-- Tailscale-Updater-Windows.ps1 will be copied to C:\ProgramData\Tailscale-updater\
+-- Then a scheduled task will be created to run the script on a daily basis at midday, storing files in a silo sub-folder.
 
 ## Usage
 
@@ -63,8 +64,8 @@ When run from PowerShell manually you can use -Verbose to monitor the progress
 - ~~Automatic release pruning - 3 previous versions perhaps~~ done
 - ~~Auto-elevate and install as a scheduled task when run interactively~~ done with installer script
 - Logging to a file or windows application log
-- Self-auto-update
+- ~~Self-auto-update
 - Auto-repair if node falls out of tailnet (store tskey in a secure keystore)
 - Take a tskey as an interactive run switch to setup the node if needed
-- Determine alternative means of detecting new releases (API doesn't seem to do it - must be something!)
+- ~~Determine alternative means of detecting new releases (API doesn't seem to do it - must be something!)
 - Notification service support
