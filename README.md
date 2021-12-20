@@ -27,7 +27,7 @@ The script can be provided a number of switches which slightly alter its behavio
 
 You can download and install the job using the following PowerShell one-liner (as admin preferably) to do the whole thing:
 ```
-Set-ExecutionPolicy -ExecutionPolicy:RemoteSigned -Scope:LocalMachine -Force -Confirm:$False -ea:silentlycontinue; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; (irm 'https://api.github.com/repos/needscoffee/tailscale-updater-windows/releases/latest').assets|%{irm $_.url -h:@{Accept="application/octet-stream"} -o:$_.name}; Start-Process 'powershell.exe' -ArgumentList:"-ExecutionPolicy Bypass -Command `"& {Set-Location $((Get-Location).Path);.\Install-Updater.ps1}`"" -Wait -Verb:RunAs; Remove-Item Install-Updater.ps1,Tailscale-Updater-Windows.ps1;
+try{Set-ExecutionPolicy Unrestricted -Scope:LocalMachine -Confirm:0}catch{}; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $f=(irm 'https://api.github.com/repos/needscoffee/tailscale-updater-windows/releases/latest').assets; $f|%{irm $_.url -h:@{Accept="application/octet-stream"} -o:$_.name}; $f.name|%{Unblock-File $_}; saps 'powershell.exe' -ArgumentList:"-ExecutionPolicy Bypass -Command `"& {cd $((pwd).Path);.\Install-Updater.ps1}`"" -Wait -Verb:RunAs; $f.name|ri;
 ```
 
 Manually this would be:
