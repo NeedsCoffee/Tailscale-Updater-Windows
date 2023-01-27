@@ -27,7 +27,7 @@ The script can be provided a number of switches which slightly alter its behavio
 
 You can download and install the job using the following PowerShell one-liner (as admin preferably) to do the whole thing:
 ```
-try{Set-ExecutionPolicy Unrestricted -Scope:LocalMachine -Confirm:0}catch{}; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $f=(irm 'https://api.github.com/repos/needscoffee/tailscale-updater-windows/releases/latest').assets; $f|%{irm $_.url -h:@{Accept="application/octet-stream"} -o:$_.name}; $f.name|%{Unblock-File $_}; saps 'powershell.exe' -ArgumentList:"-ExecutionPolicy Bypass -Command `"& {cd $((pwd).Path);.\Install-Updater.ps1}`"" -Wait -Verb:RunAs; $f.name|ri;
+try{Set-ExecutionPolicy Unrestricted -Scope:LocalMachine -Confirm:0}catch{}; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $f=(irm 'https://api.github.com/repos/needscoffee/tailscale-updater-windows/releases/latest').assets; $f|%{irm $_.url -Headers:@{Accept="application/octet-stream"} -o:$_.name}; $f.name|%{Unblock-File $_}; saps 'powershell.exe' -ArgumentList:"-ExecutionPolicy Bypass -Command `"& {cd $((pwd).Path);.\Install-Updater.ps1}`"" -Wait -Verb:RunAs; $f.name|ri;
 ```
 
 Manually this would be:
