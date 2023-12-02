@@ -1,6 +1,6 @@
 # A Tailscale Client Updater for Windows - DEPRECATED
 
-** This project is archived - Tailscale now has a built-in automatic updater so this is no longer required **
+**This project is archived - Tailscale now has a built-in automatic updater so this is no longer required**
 
 This is a little project to develop an updater & release collector for Tailscale on Windows.
 Tailscale is a multi-platform peer-to-peer mesh vpn using the Wireguard protocol. See https://tailscale.com
